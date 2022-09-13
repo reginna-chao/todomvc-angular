@@ -8,9 +8,9 @@ import {
 } from '@angular/platform-browser-dynamic/testing';
 
 declare const require: {
-  context(path: string, deep?: boolean, filter?: RegExp): {
-    <T>(id: string): T;
-    keys(): string[];
+  context(path: String, deep?: boolean, filter?: RegExp): {
+    <T>(id: String): T;
+    keys(): String[];
   };
 };
 

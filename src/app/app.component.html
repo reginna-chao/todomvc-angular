@@ -1,10 +1,12 @@
 
 
 <section class="todoapp">
-  <app-todo-header></app-todo-header>
+  <header class="header">
+    <app-title></app-title>
+    <app-todo-input></app-todo-input>
+  </header>
   <section class="main">
-    <input id="toggle-all" class="toggle-all" type="checkbox">
-    <label for="toggle-all">Mark all as complete</label>
+    <app-todo-select-all></app-todo-select-all>
     <app-todo-list></app-todo-list>
     <app-todo-footer></app-todo-footer>
   </section>
