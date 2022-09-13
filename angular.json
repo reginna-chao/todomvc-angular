@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "todomvc-angular-14": {
+    "01_todolist_angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/todomvc-angular-14",
+            "outputPath": "dist/01_todolist_angular",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -28,6 +28,8 @@
               "src/assets"
             ],
             "styles": [
+              "./node_modules/todomvc-common/base.css",
+              "./node_modules/todomvc-app-css/index.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -69,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "todomvc-angular-14:build:production"
+              "browserTarget": "01_todolist_angular:build:production"
             },
             "development": {
-              "browserTarget": "todomvc-angular-14:build:development"
+              "browserTarget": "01_todolist_angular:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -80,7 +82,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "todomvc-angular-14:build"
+            "browserTarget": "01_todolist_angular:build"
           }
         },
         "test": {
