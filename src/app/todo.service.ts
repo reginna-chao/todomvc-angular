@@ -24,7 +24,19 @@ export class TodoService {
   // Subject
   updateTodos$ = new BehaviorSubject<Todo[]>([]);
 
-  constructor() { }
+  storageKey = 'todomvc-angular-demo';
+
+  constructor() {
+    const todoStorage = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+    if (todoStorage && todoStorage.length > 0) {
+      this.TODOS = todoStorage;
+      this.updateTodos$.next(this.TODOS);
+    }
+
+    this.updateTodos$.subscribe(() => {
+      this.setStorage();
+    })
+  }
 
   /**
    * Set Category
@@ -93,6 +105,10 @@ export class TodoService {
 
   updateTodoState(): void {
     this.updateTodos$.next(this.TODOS);
+  }
+
+  setStorage() {
+    localStorage.setItem(this.storageKey, JSON.stringify(this.TODOS));
   }
 
   _findUid(uid: string): Todo | undefined {

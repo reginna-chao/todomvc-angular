@@ -11,7 +11,15 @@ export class TodoFooterComponent implements OnInit {
   category: string = 'all';
   count: Number = 0;
 
-  constructor(private todoService: TodoService) { }
+  storageKey = `${this.todoService.storageKey}-category`
+
+  constructor(private todoService: TodoService) {
+    const categoryStorage = localStorage.getItem(this.storageKey);
+    if (categoryStorage) {
+      this.category = categoryStorage;
+      this.todoService.setCategory(this.category);
+    }
+  }
 
   ngOnInit(): void {
     this.todoService.updateTodos$.subscribe(() => {
@@ -23,6 +31,7 @@ export class TodoFooterComponent implements OnInit {
   setCategory(category: string): void {
     this.category = category;
     this.todoService.setCategory(category);
+    localStorage.setItem(this.storageKey, category);
   }
 
   clearCompleted(): void {
