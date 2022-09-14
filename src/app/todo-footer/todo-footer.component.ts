@@ -8,20 +8,24 @@ import { TodoService } from '../todo.service';
   styleUrls: ['./todo-footer.component.scss']
 })
 export class TodoFooterComponent implements OnInit {
-  category: String = '';
+  category: String = 'all';
+  count: Number = 0;
 
   constructor(private todoService: TodoService) { }
 
   ngOnInit(): void {
-    this.category = this.getCategory();
+    this.todoService.updateTodos$.subscribe(() => {
+      // Update count
+      this.count = this.todoService.getTodosUncompletedLength();
+    });
   }
 
-  getCategory(): String {
-    return this.todoService.getCategory();
+  setCategory(category: String): void {
+    this.category = category;
+    this.todoService.setCategory(category);
   }
 
-  updateCategory(category: String): void {
-    this.todoService.updateCategory(category);
-    this.category = this.getCategory();
+  clearCompleted(): void {
+    this.todoService.clearCompleted();
   }
 }

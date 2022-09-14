@@ -1,15 +1,15 @@
 <footer class="footer">
-  <span class="todo-count"></span>
+  <span class="todo-count"><strong>{{count}}</strong> item left</span>
   <ul class="filters">
     <li>
-      <a href="#/" [class.selected]="category === 'all'" (click)="updateCategory('all')">All</a>
+      <a href="#/" [class.selected]="category === 'all'" (click)="setCategory('all')">All</a>
     </li>
     <li>
-    <a href="#/active" [class.selected]="category === 'active'" (click)="updateCategory('active')">Active</a>
+    <a href="#/active" [class.selected]="category === 'active'" (click)="setCategory('active')">Active</a>
     </li>
     <li>
-    <a href="#/completed" [class.selected]="category === 'completed'" (click)="updateCategory('completed')">Completed</a>
+    <a href="#/completed" [class.selected]="category === 'completed'" (click)="setCategory('completed')">Completed</a>
     </li>
   </ul>
-  <button class="clear-completed">Clear completed</button>
+  <button class="clear-completed" (click)="clearCompleted()">Clear completed</button>
 </footer>

@@ -5,7 +5,7 @@
     <app-title></app-title>
     <app-todo-input></app-todo-input>
   </header>
-  <section class="main">
+  <section *ngIf="count" class="main">
     <app-todo-select-all></app-todo-select-all>
     <app-todo-list></app-todo-list>
     <app-todo-footer></app-todo-footer>

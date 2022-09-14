@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
-import { ITodo, Todo } from './todo';
+import { Todo } from './todo';
 
 @Injectable({
   providedIn: 'root'
@@ -13,62 +14,89 @@ import { ITodo, Todo } from './todo';
 
 export class TodoService {
 
-  CATEGORY: String = 'all';
+  // private TODOS: Todo[] = [
+  //   { text: 'Taste JavaScript 456', completed: true },
+  //   { text: 'Buy a unicorn 123', completed: false }
+  // ];
 
-  TODOS: ITodo[] = [
-    { text: 'Taste JavaScript 456', completed: true },
-    { text: 'Buy a unicorn 123', completed: false }
-  ]
+  TODOS: Todo[] = [];
 
-  ALL_COMPLETED: boolean = false; // 是否全部完成
+  // Subject
+  updateTodos$ = new BehaviorSubject<Todo[]>([]);
 
   constructor() { }
 
-  // Category
-
-  getCategory(): String {
-    return this.CATEGORY;
+  /**
+   * Set Category
+   * @param category : String [all|actvie|completed]
+   * @returns Not thing, just stop function.
+   */
+  setCategory(category: String): void {
+    if (category === 'active') {
+      this.updateTodos$.next(this.TODOS.filter(todo => !todo.completed));
+      return;
+    } else if (category === 'completed') {
+      this.updateTodos$.next(this.TODOS.filter(todo => todo.completed));
+      return;
+    }
+    this.updateTodos$.next(this.TODOS);
   }
 
-  updateCategory(category: String): void {
-    this.CATEGORY = category;
+  // Control all todo elements
+
+  toggleTodosState(state: boolean): void {
+    this.TODOS.forEach(todo => {
+      todo.completed = state;
+    });
+    this.updateTodos$.next(this.TODOS);
   }
 
-  // List
-
-  getTodosAll(): ITodo[] {
-    return this.TODOS;
+  clearCompleted(): void {
+    this.TODOS = this.TODOS.filter(todo => !todo.completed);
+    this.updateTodos$.next(this.TODOS);
   }
 
-  getTodosActive(): ITodo[] {
-    return this.TODOS.filter(item => !item.completed);
+  getTodosLength(): Number {
+    return this.TODOS.length;
   }
 
-  getTodosCompleted(): ITodo[] {
-    return this.TODOS.filter(item => item.completed);
+  getTodosUncompletedLength(): Number {
+    return this.TODOS.filter(todo => !todo.completed).length;
   }
 
-  // 操作項目
+  // Control todo element
 
-  addTodo(title: String): void {
-    this.TODOS.push({...new Todo(title)});
+  addTodo(newTodo: String): void {
+    this.TODOS.push(new Todo(newTodo));
+    this.updateTodos$.next(this.TODOS);
   }
 
-  removeTodo(todo: ITodo): void{
-    this.TODOS.slice(this.TODOS.indexOf(todo), 1);
+  /**
+   * Way1: use todo to find object in todos
+   * @param todo: Object
+   */
+  // removeTodo(todo: Todo): void {
+  //   this.TODOS.splice(this.TODOS.indexOf(todo), 1);
+  //   this.updateTodos$.next(this.TODOS);
+  // }
+
+  /**
+   * Way2: use uid to find obejct in todos
+   * @param uid: String - uuid
+   */
+  removeTodo(uid: String): void {
+    const todo = this._findUid(uid);
+    if (!todo) return;
+    this.TODOS.splice(this.TODOS.indexOf(todo), 1);
+    this.updateTodos$.next(this.TODOS);
   }
 
-  // 全選相關
-
-  getCompletedAll(): boolean {
-    return this.ALL_COMPLETED;
+  updateTodoState(): void {
+    this.updateTodos$.next(this.TODOS);
   }
 
-  // 全選
-  completedAll(): void {
-    this.TODOS.forEach(item => {
-      item.completed = true;
-    })
+  _findUid(uid: String): Todo | undefined {
+    return this.TODOS.find(todo => todo.uid === uid);
   }
 
 }

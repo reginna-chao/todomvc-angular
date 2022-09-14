@@ -8,11 +8,19 @@ import { TodoService } from '../todo.service';
   styleUrls: ['./todo-select-all.component.scss']
 })
 export class TodoSelectAllComponent implements OnInit {
+  completedAll: boolean = false;
 
-
-  constructor(private todoService: TodoService) { }
+  constructor(private todoService: TodoService) {
+    this.todoService.updateTodos$.subscribe(() => {
+      this.completedAll = this.todoService.getTodosUncompletedLength() === 0;
+    })
+  }
 
   ngOnInit(): void {
+  }
+
+  toggleTodosState(): void {
+    this.todoService.toggleTodosState(this.completedAll);
   }
 
 }
