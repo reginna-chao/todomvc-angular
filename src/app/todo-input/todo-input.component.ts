@@ -9,7 +9,7 @@ import { TodoService } from '../todo.service';
   styleUrls: ['./todo-input.component.scss']
 })
 export class TodoInputComponent implements OnInit {
-  text: String = '';
+  text: string = '';
 
   constructor(private todoService: TodoService) { }
 
@@ -18,7 +18,7 @@ export class TodoInputComponent implements OnInit {
 
   addTodo(): void {
     if (this.text.trim() === '') return;
-    this.todoService.addTodo(this.text as String);
+    this.todoService.addTodo(this.text as string);
     this.text = '';
   }
 

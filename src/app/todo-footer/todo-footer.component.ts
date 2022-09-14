@@ -8,7 +8,7 @@ import { TodoService } from '../todo.service';
   styleUrls: ['./todo-footer.component.scss']
 })
 export class TodoFooterComponent implements OnInit {
-  category: String = 'all';
+  category: string = 'all';
   count: Number = 0;
 
   constructor(private todoService: TodoService) { }
@@ -20,7 +20,7 @@ export class TodoFooterComponent implements OnInit {
     });
   }
 
-  setCategory(category: String): void {
+  setCategory(category: string): void {
     this.category = category;
     this.todoService.setCategory(category);
   }

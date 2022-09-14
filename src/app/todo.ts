@@ -1,15 +1,15 @@
 import { v4 as uuid } from 'node-uuid';
 
 export class Todo {
-  uid: String;
-  text: String;
+  uid: string;
+  text: string;
   completed: boolean;
 
-  setText(newText: String): void {
+  setText(newText: string): void {
     this.text = newText.trim();
   }
 
-  constructor(text: String) {
+  constructor(text: string) {
     this.uid = uuid();
     this.text = text.trim();
     this.completed = false;

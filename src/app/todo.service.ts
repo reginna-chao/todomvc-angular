@@ -28,10 +28,10 @@ export class TodoService {
 
   /**
    * Set Category
-   * @param category : String [all|actvie|completed]
+   * @param category : string [all|actvie|completed]
    * @returns Not thing, just stop function.
    */
-  setCategory(category: String): void {
+  setCategory(category: string): void {
     if (category === 'active') {
       this.updateTodos$.next(this.TODOS.filter(todo => !todo.completed));
       return;
@@ -66,7 +66,7 @@ export class TodoService {
 
   // Control todo element
 
-  addTodo(newTodo: String): void {
+  addTodo(newTodo: string): void {
     this.TODOS.push(new Todo(newTodo));
     this.updateTodos$.next(this.TODOS);
   }
@@ -82,9 +82,9 @@ export class TodoService {
 
   /**
    * Way2: use uid to find obejct in todos
-   * @param uid: String - uuid
+   * @param uid: string - uuid
    */
-  removeTodo(uid: String): void {
+  removeTodo(uid: string): void {
     const todo = this._findUid(uid);
     if (!todo) return;
     this.TODOS.splice(this.TODOS.indexOf(todo), 1);
@@ -95,7 +95,7 @@ export class TodoService {
     this.updateTodos$.next(this.TODOS);
   }
 
-  _findUid(uid: String): Todo | undefined {
+  _findUid(uid: string): Todo | undefined {
     return this.TODOS.find(todo => todo.uid === uid);
   }
 
