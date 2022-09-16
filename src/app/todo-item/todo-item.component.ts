@@ -40,7 +40,7 @@ export class TodoItemComponent implements OnInit {
     if (!this.todo) return;
 
     // this.todoService.removeTodo(this.todo);
-    this.todoService.removeTodo(this.todo.uid);
+    this.todoService.removeTodo(this.todo.id);
   }
 
   // Update todo completed state for update count.

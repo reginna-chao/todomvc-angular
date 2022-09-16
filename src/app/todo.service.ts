@@ -1,5 +1,8 @@
+import { environment } from 'src/environments/environment.prod';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { Todo } from './todo';
 
@@ -7,24 +10,50 @@ import { Todo } from './todo';
   providedIn: 'root'
 })
 
-// Init 要執行的項目
-// 1. 取得 ToDo List 資料
-// 2. 取得 Active Category
-// 3. 顯示 Active Category List
-
 export class TodoService {
+  private apiUrl: string = environment.apiUrl;
+  private todosUrl: string = `${this.apiUrl}/todos`;
 
-  // private TODOS: Todo[] = [
-  //   { text: 'Taste JavaScript 456', completed: true },
-  //   { text: 'Buy a unicorn 123', completed: false }
-  // ];
+  httpOptions = {
+    headers: new HttpHeaders({'Content-Type': 'appliction/json'})
+  };
 
-  TODOS: Todo[] = [];
+  pageNumber: number = 1; // 目前頁面
+  pageLimit: number = 5; // 單頁面數量
+  pageSize: number = 1; // 總頁面數
+  totalCount: number = 0; // 總任務數量
+
+  TODOS: Todo[] = []; // 總任務
+  TODOS_PAGE: Todo[] = []; // 頁面上顯示的資料
 
   // Subject
   updateTodos$ = new BehaviorSubject<Todo[]>([]);
 
-  constructor() { }
+  constructor(private http: HttpClient) {
+    // 取得全部任務（為了計算到底有幾項未完成）、總任務數量
+    this.getTodos()
+      .subscribe(resp => {
+        this.TODOS = resp.body || [];
+        this.totalCount = Number(resp.headers.get('X-Total-Count'));
+        this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
+        this.updateTodos$.next(this.TODOS);
+      });
+
+    // 取得單頁面 TODOS
+    // this.getTodosPage(this.pageNumber)
+    //   .subscribe(resp => {
+    //     this.TODOS_PAGE = resp || [];
+    //     this.updateTodos$.next(this.TODOS_PAGE);
+    //   });
+  }
+
+  getTodos() {
+    return this.http.get<any>(this.todosUrl, {observe: 'response'})
+  }
+
+  getTodosPage(page: number) {
+    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}`)
+  }
 
   /**
    * Set Category
@@ -66,37 +95,25 @@ export class TodoService {
 
   // Control todo element
 
-  addTodo(newTodo: string): void {
-    this.TODOS.push(new Todo(newTodo));
-    this.updateTodos$.next(this.TODOS);
+  addTodo(newTodo: string): Observable<Todo> {
+    console.log(newTodo);
+    return this.http.post<Todo>(this.todosUrl, new Todo(newTodo), this.httpOptions).pipe(
+      tap(data => {
+        console.log(data)
+        this.updateTodos$.next(this.TODOS);
+      })
+    )
+    // this.TODOS.push(new Todo(newTodo));
+    // this.updateTodos$.next(this.TODOS);
   }
 
-  /**
-   * Way1: use todo to find object in todos
-   * @param todo: Object
-   */
-  // removeTodo(todo: Todo): void {
-  //   this.TODOS.splice(this.TODOS.indexOf(todo), 1);
-  //   this.updateTodos$.next(this.TODOS);
-  // }
-
-  /**
-   * Way2: use uid to find obejct in todos
-   * @param uid: string - uuid
-   */
-  removeTodo(uid: string): void {
-    const todo = this._findUid(uid);
-    if (!todo) return;
-    this.TODOS.splice(this.TODOS.indexOf(todo), 1);
-    this.updateTodos$.next(this.TODOS);
+  removeTodo(id: number)  {
+    console.log('service: removeTodo', id)
+    this.http.delete(`${this.todosUrl}/${id}`, this.httpOptions);
   }
 
   updateTodoState(): void {
     this.updateTodos$.next(this.TODOS);
-  }
-
-  _findUid(uid: string): Todo | undefined {
-    return this.TODOS.find(todo => todo.uid === uid);
   }
 
 }

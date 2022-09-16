@@ -1,7 +1,12 @@
-import { v4 as uuid } from 'node-uuid';
+// 引用 Todo 一樣可以判斷資料格式，所以不使用 interface
+// export interface ITodo {
+//   uid: string;
+//   text: string;
+//   completed: boolean;
+// }
 
 export class Todo {
-  uid: string;
+  id: any;
   text: string;
   completed: boolean;
 
@@ -10,7 +15,6 @@ export class Todo {
   }
 
   constructor(text: string) {
-    this.uid = uuid();
     this.text = text.trim();
     this.completed = false;
   }

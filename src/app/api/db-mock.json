@@ -1,0 +1,59 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "text": "Chrome",
+      "completed": true
+    },
+    {
+      "id": 2,
+      "text": "Item2: Terminal software",
+      "completed": false
+    },
+    {
+      "id": 3,
+      "text": "Xnip(APP Store): Screenshot software",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "text": "Tunnelblick: VPN software",
+      "completed": false
+    },
+    {
+      "id": 5,
+      "text": "VSCode: IDE software",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "text": "Git Fork/Sourcetree",
+      "completed": false
+    },
+    {
+      "id": 7,
+      "text": "nvm",
+      "completed": false
+    },
+    {
+      "id": 8,
+      "text": "angular cli",
+      "completed": false
+    },
+    {
+      "id": 9,
+      "text": "VPN",
+      "completed": false
+    },
+    {
+      "id": 10,
+      "text": "GitHub/Gitlab login",
+      "completed": false
+    },
+    {
+      "id": 11,
+      "text": "Altair GraphQL Client",
+      "completed": false
+    }
+  ]
+}
