@@ -11,6 +11,7 @@ import { TodoListComponent } from './todo-list/todo-list.component';
 import { TitleComponent } from './title/title.component';
 import { TodoSelectAllComponent } from './todo-select-all/todo-select-all.component';
 import { TodoPaginationComponent } from './todo-pagination/todo-pagination.component';
+import { LoaderComponent } from './loader/loader.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { TodoPaginationComponent } from './todo-pagination/todo-pagination.compo
     TitleComponent,
     TodoSelectAllComponent,
     TodoPaginationComponent,
+    LoaderComponent,
   ],
   imports: [
     BrowserModule,

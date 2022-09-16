@@ -18,6 +18,8 @@ export class TodoService {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   };
 
+  loading$ = new BehaviorSubject<boolean>(false);
+
   // Page
   pageNumber: number = 1; // 目前頁面
   pageLimit: number = 5; // 單頁面數量
@@ -41,7 +43,9 @@ export class TodoService {
       });
 
     // 取得單頁面 TODOS
-    this.getTodosPage(this.pageNumber).subscribe();
+    this.getTodosPage(this.pageNumber).subscribe(() => {
+      this.loading$.next(true);
+    });
   }
 
   getTodos(): Observable<any> {
