@@ -1,7 +1,7 @@
 import { environment } from 'src/environments/environment.prod';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Subject, Observable, of } from 'rxjs';
 import { tap, findIndex, filter } from 'rxjs/operators';
 
 import { Todo } from './todo';
@@ -26,6 +26,8 @@ export class TodoService {
 
   TODOS: Todo[] = []; // 總任務
   TODOS_VIEW: Todo[] = []; // 頁面上顯示的資料
+
+  category: string = 'all'; // 顯示的分類類型
 
   // Subject
   updateTodos$ = new BehaviorSubject<Todo[]>([]);
@@ -53,6 +55,20 @@ export class TodoService {
         this.pageNumber = page;
         this.totalCount = Number(resp.headers.get('X-Total-Count'));
         this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
+        this.pageSize = this.pageSize > 0 ? this.pageSize : 1;
+        this.updateTodos$.next(this.TODOS_VIEW);
+      })
+    )
+  }
+
+  getTodosPageCompletedFilter(page: number, completed: boolean): Observable<any> {
+    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}&completed=${completed}`, {observe: 'response'}).pipe(
+      tap(resp => {
+        this.TODOS_VIEW = resp.body || [];
+        this.pageNumber = page;
+        this.totalCount = Number(resp.headers.get('X-Total-Count'));
+        this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
+        this.pageSize = this.pageSize > 0 ? this.pageSize : 1;
         this.updateTodos$.next(this.TODOS_VIEW);
       })
     )
@@ -72,15 +88,17 @@ export class TodoService {
    * @param category : string [all|actvie|completed]
    * @returns Not thing, just stop function.
    */
-  setCategory(category: string): void {
+  setCategory(category: string): Observable<any> {
     if (category === 'active') {
-      this.updateTodos$.next(this.TODOS.filter(todo => !todo.completed));
-      return;
+      // this.updateTodos$.next(this.TODOS.filter(todo => !todo.completed));
+      return this.getTodosPageCompletedFilter(this.pageNumber, false); // page version
     } else if (category === 'completed') {
-      this.updateTodos$.next(this.TODOS.filter(todo => todo.completed));
-      return;
+      // this.updateTodos$.next(this.TODOS.filter(todo => todo.completed));
+      return this.getTodosPageCompletedFilter(this.pageNumber, true); // page version
     }
-    this.updateTodos$.next(this.TODOS);
+    // All
+    // this.updateTodos$.next(this.TODOS);
+    return this.getTodosPage(this.pageNumber); // page version
   }
 
   // Control all todo elements

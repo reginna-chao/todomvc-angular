@@ -22,7 +22,7 @@ export class TodoFooterComponent implements OnInit {
 
   setCategory(category: string): void {
     this.category = category;
-    this.todoService.setCategory(category);
+    this.todoService.setCategory(category).subscribe();
   }
 
   clearCompleted(): void {
