@@ -1,10 +1,10 @@
 import { environment } from 'src/environments/environment.prod';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Subject, Observable, of } from 'rxjs';
-import { tap, findIndex, filter } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-import { Todo } from './todo';
+import { Todo } from '../models/todo.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,9 @@ export class TodoService {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   };
 
+  storageKey: string = 'todomvc-angular-demo';
+  storageCategoryKey: string = `${this.storageKey}-category`;
+
   loading$ = new BehaviorSubject<boolean>(false);
 
   // Page
@@ -29,7 +32,7 @@ export class TodoService {
   TODOS: Todo[] = []; // 總任務
   TODOS_VIEW: Todo[] = []; // 頁面上顯示的資料
 
-  category: string = 'all'; // 顯示的分類類型
+  category$ = new BehaviorSubject<string>('all'); // 顯示的分類類型
 
   // Subject
   updateTodos$ = new BehaviorSubject<Todo[]>([]);
@@ -45,7 +48,14 @@ export class TodoService {
     // 取得單頁面 TODOS
     this.getTodosPage(this.pageNumber).subscribe(() => {
       this.loading$.next(true);
+
+      const categoryStorage: string | null = localStorage.getItem(this.storageCategoryKey);
+      if (categoryStorage) {
+        this.category$.next(categoryStorage);
+        this.setCategory(categoryStorage).subscribe();
+      }
     });
+
   }
 
   getTodos(): Observable<any> {
@@ -93,6 +103,7 @@ export class TodoService {
    * @returns Not thing, just stop function.
    */
   setCategory(category: string): Observable<any> {
+    this.setCategoryStorage(category);
     if (category === 'active') {
       // this.updateTodos$.next(this.TODOS.filter(todo => !todo.completed));
       return this.getTodosPageCompletedFilter(this.pageNumber, false); // page version
@@ -174,6 +185,10 @@ export class TodoService {
 
   updateTodoState(): void {
     this.updateTodos$.next(this.TODOS);
+  }
+
+  setCategoryStorage(category: string) {
+    localStorage.setItem(this.storageCategoryKey, category);
   }
 
   private _findId(id: number): Todo | undefined {

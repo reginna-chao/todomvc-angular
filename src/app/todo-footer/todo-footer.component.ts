@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { TodoService } from '../todo.service';
+import { TodoService } from '../services/todo.service';
 
 @Component({
   selector: 'app-todo-footer',
@@ -18,6 +18,10 @@ export class TodoFooterComponent implements OnInit {
       // Update count
       this.count = this.todoService.getTodosUncompletedLength();
     });
+
+    this.todoService.category$.subscribe(newCategory => {
+      this.category = newCategory;
+    })
   }
 
   setCategory(category: string): void {
