@@ -4,7 +4,13 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
+Run `npm run dev` for a dev server and use JSON Server. Navigate to `http://localhost:4200/`. JSON Server API: `http://localhost:4201/`.
+
+OR
+
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+And run `npm run json` use JSON Server API: `http://localhost:4201/`.
 
 ## Code scaffolding
 
