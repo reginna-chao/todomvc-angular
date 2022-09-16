@@ -1,7 +1,7 @@
 import { environment } from 'src/environments/environment.prod';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, findIndex, filter } from 'rxjs/operators';
 
 import { Todo } from './todo';
@@ -18,13 +18,14 @@ export class TodoService {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   };
 
+  // Page
   pageNumber: number = 1; // 目前頁面
   pageLimit: number = 5; // 單頁面數量
   pageSize: number = 1; // 總頁面數
   totalCount: number = 0; // 總任務數量
 
   TODOS: Todo[] = []; // 總任務
-  TODOS_PAGE: Todo[] = []; // 頁面上顯示的資料
+  TODOS_VIEW: Todo[] = []; // 頁面上顯示的資料
 
   // Subject
   updateTodos$ = new BehaviorSubject<Todo[]>([]);
@@ -32,28 +33,38 @@ export class TodoService {
   constructor(private http: HttpClient) {
     // 取得全部任務（為了計算到底有幾項未完成）、總任務數量
     this.getTodos()
-      .subscribe(resp => {
-        if (!resp.body) return;
-        this.TODOS = resp.body || [];
-        this.totalCount = Number(resp.headers.get('X-Total-Count'));
-        this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
-        this.updateTodos$.next(this.TODOS);
+      .subscribe(data => {
+        this.TODOS = data || [];
+        // this.updateTodos$.next(this.TODOS); // 顯示全部任務時需要
       });
 
     // 取得單頁面 TODOS
-    // this.getTodosPage(this.pageNumber)
-    //   .subscribe(resp => {
-    //     this.TODOS_PAGE = resp || [];
-    //     this.updateTodos$.next(this.TODOS_PAGE);
-    //   });
+    this.getTodosPage(this.pageNumber).subscribe();
   }
 
   getTodos(): Observable<any> {
-    return this.http.get<any>(this.todosUrl, {observe: 'response'})
+    return this.http.get<any>(this.todosUrl)
   }
 
   getTodosPage(page: number): Observable<any> {
-    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}`)
+    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}`, {observe: 'response'}).pipe(
+      tap(resp => {
+        this.TODOS_VIEW = resp.body || [];
+        this.pageNumber = page;
+        this.totalCount = Number(resp.headers.get('X-Total-Count'));
+        this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
+        this.updateTodos$.next(this.TODOS_VIEW);
+      })
+    )
+  }
+
+  getPageData(): Observable<object> {
+    return of({
+      pageNumber: this.pageNumber,
+      pageLimit: this.pageLimit,
+      pageSize: this.pageSize,
+      totalCount: this.totalCount
+    })
   }
 
   /**
@@ -109,7 +120,7 @@ export class TodoService {
     return this.http.post<Todo>(this.todosUrl, new Todo(newTodoText), this.httpOptions).pipe(
       tap(data => {
         this.TODOS.push(data);
-        this.updateTodos$.next(this.TODOS);
+        this.getTodosPage(Math.ceil(this.TODOS.length / this.pageLimit)).subscribe();
       })
     )
   }
@@ -120,7 +131,10 @@ export class TodoService {
         const todo = this._findId(id);
         if (!todo) return;
         this.TODOS.splice(this.TODOS.indexOf(todo), 1);
-        this.updateTodos$.next(this.TODOS);
+
+        const lastPage: number = Math.ceil(this.TODOS.length / this.pageLimit);
+        const currentPage: number = lastPage > this.pageNumber ? this.pageNumber : lastPage;
+        this.getTodosPage(currentPage).subscribe();
       })
     );
   }
@@ -131,7 +145,7 @@ export class TodoService {
         const todo = this._findId(data.id);
         if (!todo) return;
         this.TODOS[this.TODOS.indexOf(todo)] = data;
-        this.updateTodos$.next(this.TODOS);
+        this.getTodosPage(this.pageNumber).subscribe();
       })
     )
   }

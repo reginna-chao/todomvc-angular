@@ -1,0 +1,22 @@
+.page {
+  margin: 10px;
+  text-align: center;
+
+  &__btn {
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      color: #b83f45;
+    }
+
+    &.disabled {
+      color: #999;
+      pointer-events: none;
+    }
+  }
+
+  &__text {
+    margin: 0 20px;
+  }
+}

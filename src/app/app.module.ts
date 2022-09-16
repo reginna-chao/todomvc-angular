@@ -10,6 +10,7 @@ import { TodoItemComponent } from './todo-item/todo-item.component';
 import { TodoListComponent } from './todo-list/todo-list.component';
 import { TitleComponent } from './title/title.component';
 import { TodoSelectAllComponent } from './todo-select-all/todo-select-all.component';
+import { TodoPaginationComponent } from './todo-pagination/todo-pagination.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { TodoSelectAllComponent } from './todo-select-all/todo-select-all.compon
     TodoListComponent,
     TitleComponent,
     TodoSelectAllComponent,
+    TodoPaginationComponent,
   ],
   imports: [
     BrowserModule,
