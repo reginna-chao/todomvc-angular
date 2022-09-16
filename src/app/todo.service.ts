@@ -2,7 +2,7 @@ import { environment } from 'src/environments/environment.prod';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, findIndex, filter } from 'rxjs/operators';
 
 import { Todo } from './todo';
 
@@ -15,7 +15,7 @@ export class TodoService {
   private todosUrl: string = `${this.apiUrl}/todos`;
 
   httpOptions = {
-    headers: new HttpHeaders({'Content-Type': 'appliction/json'})
+    headers: new HttpHeaders({'Content-Type': 'application/json' })
   };
 
   pageNumber: number = 1; // 目前頁面
@@ -33,6 +33,7 @@ export class TodoService {
     // 取得全部任務（為了計算到底有幾項未完成）、總任務數量
     this.getTodos()
       .subscribe(resp => {
+        if (!resp.body) return;
         this.TODOS = resp.body || [];
         this.totalCount = Number(resp.headers.get('X-Total-Count'));
         this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
@@ -47,11 +48,11 @@ export class TodoService {
     //   });
   }
 
-  getTodos() {
+  getTodos(): Observable<any> {
     return this.http.get<any>(this.todosUrl, {observe: 'response'})
   }
 
-  getTodosPage(page: number) {
+  getTodosPage(page: number): Observable<any> {
     return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}`)
   }
 
@@ -74,15 +75,24 @@ export class TodoService {
   // Control all todo elements
 
   toggleTodosState(state: boolean): void {
-    this.TODOS.forEach(todo => {
-      todo.completed = state;
-    });
-    this.updateTodos$.next(this.TODOS);
+    this.TODOS.map(todo => {
+      if (state && !todo.completed) {
+        todo.completed = !todo.completed;
+        this.updateTodo(todo).subscribe();
+      } else if (!state && todo.completed) {
+        todo.completed = !todo.completed;
+        this.updateTodo(todo).subscribe();
+      }
+    })
   }
 
   clearCompleted(): void {
-    this.TODOS = this.TODOS.filter(todo => !todo.completed);
-    this.updateTodos$.next(this.TODOS);
+    this.TODOS.map(todo => {
+      if (todo.completed) {
+        console.log(todo);
+        this.removeTodo(todo.id).subscribe();
+      }
+    });
   }
 
   getTodosLength(): Number {
@@ -95,25 +105,43 @@ export class TodoService {
 
   // Control todo element
 
-  addTodo(newTodo: string): Observable<Todo> {
-    console.log(newTodo);
-    return this.http.post<Todo>(this.todosUrl, new Todo(newTodo), this.httpOptions).pipe(
+  addTodo(newTodoText: string): Observable<Todo> {
+    return this.http.post<Todo>(this.todosUrl, new Todo(newTodoText), this.httpOptions).pipe(
       tap(data => {
-        console.log(data)
+        this.TODOS.push(data);
         this.updateTodos$.next(this.TODOS);
       })
     )
-    // this.TODOS.push(new Todo(newTodo));
-    // this.updateTodos$.next(this.TODOS);
   }
 
-  removeTodo(id: number)  {
-    console.log('service: removeTodo', id)
-    this.http.delete(`${this.todosUrl}/${id}`, this.httpOptions);
+  removeTodo(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.todosUrl}/${id}`, this.httpOptions).pipe(
+      tap(() => {
+        const todo = this._findId(id);
+        if (!todo) return;
+        this.TODOS.splice(this.TODOS.indexOf(todo), 1);
+        this.updateTodos$.next(this.TODOS);
+      })
+    );
+  }
+
+  updateTodo(todo: Todo): Observable<any> {
+    return this.http.put<Todo>(`${this.todosUrl}/${todo.id}`, todo, this.httpOptions).pipe(
+      tap((data: any) => {
+        const todo = this._findId(data.id);
+        if (!todo) return;
+        this.TODOS[this.TODOS.indexOf(todo)] = data;
+        this.updateTodos$.next(this.TODOS);
+      })
+    )
   }
 
   updateTodoState(): void {
     this.updateTodos$.next(this.TODOS);
+  }
+
+  private _findId(id: number): Todo | undefined {
+    return this.TODOS.find(item => item.id === id);
   }
 
 }

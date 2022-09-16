@@ -18,7 +18,7 @@ export class TodoInputComponent implements OnInit {
 
   addTodo(): void {
     if (this.text.trim() === '') return;
-    this.todoService.addTodo(this.text as string);
+    this.todoService.addTodo(this.text as string).subscribe()
     this.text = '';
   }
 

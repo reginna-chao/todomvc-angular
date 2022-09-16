@@ -7,7 +7,7 @@
     <input class="toggle" type="checkbox"
       [checked]="todo.completed"
       [(ngModel)]="todo.completed"
-      (change)="updateState()"
+      (change)="updateTodo(todo)"
       >
     <label (dblclick)="showEdit()">{{todo.text}}</label>
     <button class="destroy" (click)="removeTodo()"></button>

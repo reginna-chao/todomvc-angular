@@ -39,13 +39,13 @@ export class TodoItemComponent implements OnInit {
     // Solve: Object is possibly 'undefined'.ts(2532)
     if (!this.todo) return;
 
-    // this.todoService.removeTodo(this.todo);
-    this.todoService.removeTodo(this.todo.id);
+    this.todoService.removeTodo(this.todo.id).subscribe();
   }
 
   // Update todo completed state for update count.
-  updateState(): void {
-    this.todoService.updateTodoState();
+  updateTodo(todo: Todo): void {
+    console.log(todo)
+    this.todoService.updateTodo(todo).subscribe();
   }
 
   showEdit(): void {
@@ -58,10 +58,9 @@ export class TodoItemComponent implements OnInit {
     // // Solve: Object is possibly 'undefined'.ts(2532)
     if (!this.todo) return;
 
-    this.todo.setText(editTodoEl.value);
-
     if (editTodoEl.value.length !== 0) {
-      this.updateState();
+      this.todo.text = editTodoEl.value;
+      this.updateTodo(this.todo);
     } else {
       this.removeTodo();
     }
