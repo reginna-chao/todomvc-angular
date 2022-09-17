@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { TodoService } from '../services/todo.service';
 
@@ -7,16 +7,19 @@ import { TodoService } from '../services/todo.service';
   templateUrl: './todo-select-all.component.html',
   styleUrls: ['./todo-select-all.component.scss']
 })
-export class TodoSelectAllComponent implements OnInit {
+export class TodoSelectAllComponent implements OnInit, OnDestroy {
   completedAll: boolean = false;
 
-  constructor(private todoService: TodoService) {
+  constructor(private todoService: TodoService) { }
+
+  ngOnInit(): void {
     this.todoService.updateTodos$.subscribe(() => {
       this.completedAll = this.todoService.getTodosUncompletedLength() === 0;
     })
   }
 
-  ngOnInit(): void {
+  ngOnDestroy(): void {
+    this.todoService.updateTodos$.unsubscribe();
   }
 
   toggleTodosState(): void {

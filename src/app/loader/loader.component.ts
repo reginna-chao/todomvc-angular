@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { TodoService } from '../services/todo.service';
 
@@ -7,7 +7,7 @@ import { TodoService } from '../services/todo.service';
   templateUrl: './loader.component.html',
   styleUrls: ['./loader.component.scss']
 })
-export class LoaderComponent implements OnInit {
+export class LoaderComponent implements OnInit, OnDestroy {
   loaded: boolean = false;
   loaderShow: boolean = true;
 
@@ -23,6 +23,10 @@ export class LoaderComponent implements OnInit {
         this.loaderShow = false;
       }, 1500);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.todoService.loading$.unsubscribe()
   }
 
 }

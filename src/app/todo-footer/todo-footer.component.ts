@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { TodoService } from '../services/todo.service';
 
@@ -7,7 +7,7 @@ import { TodoService } from '../services/todo.service';
   templateUrl: './todo-footer.component.html',
   styleUrls: ['./todo-footer.component.scss']
 })
-export class TodoFooterComponent implements OnInit {
+export class TodoFooterComponent implements OnInit, OnDestroy {
   category: string = 'all';
   count: Number = 0;
 
@@ -22,6 +22,11 @@ export class TodoFooterComponent implements OnInit {
     this.todoService.category$.subscribe(newCategory => {
       this.category = newCategory;
     })
+  }
+
+  ngOnDestroy(): void {
+    this.todoService.updateTodos$.unsubscribe();
+    this.todoService.category$.unsubscribe();
   }
 
   setCategory(category: string): void {

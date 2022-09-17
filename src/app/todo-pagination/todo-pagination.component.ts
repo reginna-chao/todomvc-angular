@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { TodoService } from '../services/todo.service';
 
@@ -7,7 +7,7 @@ import { TodoService } from '../services/todo.service';
   templateUrl: './todo-pagination.component.html',
   styleUrls: ['./todo-pagination.component.scss']
 })
-export class TodoPaginationComponent implements OnInit {
+export class TodoPaginationComponent implements OnInit, OnDestroy {
   pageNumber: number = 1;
   pageSize: number = 1;
   hasPage: boolean = this.pageSize > 1;
@@ -18,6 +18,10 @@ export class TodoPaginationComponent implements OnInit {
     this.todoService.updateTodos$.subscribe(() => {
       this.getPageData();
     })
+  }
+
+  ngOnDestroy(): void {
+    this.todoService.updateTodos$.unsubscribe();
   }
 
   getPageData(): void {
