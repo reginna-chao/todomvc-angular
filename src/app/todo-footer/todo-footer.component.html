@@ -2,13 +2,13 @@
   <span class="todo-count"><strong>{{count}}</strong> item left</span>
   <ul class="filters">
     <li>
-      <a routerLink="/todos/all" [class.selected]="category === 'all'" (click)="setCategory('all')">All</a>
+      <a routerLink="/todos/all/1" [class.selected]="category === 'all'" (click)="setCategory('all')">All</a>
     </li>
     <li>
-    <a routerLink="/todos/active" [class.selected]="category === 'active'" (click)="setCategory('active')">Active</a>
+    <a routerLink="/todos/active/1" [class.selected]="category === 'active'" (click)="setCategory('active')">Active</a>
     </li>
     <li>
-    <a routerLink="/todos/completed" [class.selected]="category === 'completed'" (click)="setCategory('completed')">Completed</a>
+    <a routerLink="/todos/completed/1" [class.selected]="category === 'completed'" (click)="setCategory('completed')">Completed</a>
     </li>
   </ul>
   <button class="clear-completed" (click)="clearCompleted()">Clear completed</button>

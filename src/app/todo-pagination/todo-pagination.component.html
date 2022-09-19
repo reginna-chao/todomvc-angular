@@ -1,5 +1,17 @@
 <div class="page">
-  <a *ngIf="hasPage" class="page__btn prev" [class.disabled]="pageNumber === 1" (click)="prevPage()" href="#">Prev</a>
+  <a
+    class="page__btn prev"
+    [class.disabled]="pageNumber === 1"
+    [class.hide]="pageSize === 1"
+    (click)="prevPage()"
+    [routerLink]="['/todos', category, pageNumber - 1]"
+  >Prev</a>
   <span class="page__text">{{pageNumber}} of {{pageSize}}</span>
-  <a *ngIf="hasPage" class="page__btn next" [class.disabled]="pageNumber === pageSize" (click)="nextPage()" href="#">Next</a>
+  <a
+    class="page__btn next"
+    [class.disabled]="pageNumber === pageSize"
+    [class.hide]="pageSize === 1"
+    (click)="nextPage()"
+    [routerLink]="['/todos', category, pageNumber + 1]"
+  >Next</a>
 </div>

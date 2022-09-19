@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Todo } from '../models/todo.model';
 
 import { TodoService } from '../services/todo.service';
 
@@ -13,8 +12,7 @@ export class TodoInputComponent implements OnInit {
 
   constructor(private todoService: TodoService) { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   addTodo(): void {
     if (this.text.trim() === '') return;

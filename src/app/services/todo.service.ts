@@ -1,7 +1,7 @@
 import { environment } from 'src/environments/environment.prod';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { Todo } from '../models/todo.model';
@@ -11,151 +11,151 @@ import { Todo } from '../models/todo.model';
 })
 
 export class TodoService {
-  private apiUrl: string = environment.apiUrl;
-  private todosUrl: string = `${this.apiUrl}/todos`;
+  private todosUrl: string = `${environment.apiUrl}/todos`;
 
-  httpOptions = {
+  private httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   };
 
-  storageKey: string = 'todomvc-angular-demo';
-  storageCategoryKey: string = `${this.storageKey}-category`;
-
   loading$ = new BehaviorSubject<boolean>(false);
+
+  // 資料
+  TODOS: Todo[] = []; // 顯示的總任務
+  TODOS_CATEGORY: Todo[] = [];
+  TODOS_VIEW: Todo[] = []; // 頁面上顯示的資料
+
+  // 分類
+  category: string = 'all';
 
   // Page
   pageNumber: number = 1; // 目前頁面
   pageLimit: number = 5; // 單頁面數量
   pageSize: number = 1; // 總頁面數
+
+  // 任務數量
   totalCount: number = 0; // 總任務數量
-
-  TODOS: Todo[] = []; // 總任務
-  TODOS_VIEW: Todo[] = []; // 頁面上顯示的資料
-
-  category$ = new BehaviorSubject<string>('all'); // 顯示的分類類型
+  unCompletedCount: number = 0; // 未完成總數量
 
   // Subject
   updateTodos$ = new BehaviorSubject<Todo[]>([]);
+  updateTodosCategory$ = new Subject<Todo[]>();
 
   constructor(private http: HttpClient) {
-    // 取得全部任務（為了計算到底有幾項未完成）、總任務數量
-    this.getTodos()
-      .subscribe(data => {
-        this.TODOS = data || [];
-        // this.updateTodos$.next(this.TODOS); // 顯示全部任務時需要
-      });
+    this.getTodos();
 
-    // 取得單頁面 TODOS
-    this.getTodosPage(this.pageNumber).subscribe(() => {
-      this.loading$.next(true);
-
-      const categoryStorage: string | null = localStorage.getItem(this.storageCategoryKey);
-      if (categoryStorage) {
-        this.category$.next(categoryStorage);
-        this.setCategory(categoryStorage).subscribe();
-      }
-    });
-
+    this.updateTodosCategory$.subscribe(() => {
+      this.setPage(this.pageNumber);
+    })
   }
+
 
   getTodos(): Observable<any> {
-    return this.http.get<any>(this.todosUrl)
-  }
-
-  getTodosPage(page: number): Observable<any> {
-    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}`, {observe: 'response'}).pipe(
-      tap(resp => {
-        this.TODOS_VIEW = resp.body || [];
-        this.pageNumber = page;
-        this.totalCount = Number(resp.headers.get('X-Total-Count'));
-        this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
-        this.pageSize = this.pageSize > 0 ? this.pageSize : 1;
-        this.updateTodos$.next(this.TODOS_VIEW);
-      })
-    )
-  }
-
-  getTodosPageCompletedFilter(page: number, completed: boolean): Observable<any> {
-    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}&completed=${completed}`, {observe: 'response'}).pipe(
-      tap(resp => {
-        this.TODOS_VIEW = resp.body || [];
-        this.pageNumber = page;
-        this.totalCount = Number(resp.headers.get('X-Total-Count'));
-        this.pageSize = Math.ceil(this.totalCount / this.pageLimit);
-        this.pageSize = this.pageSize > 0 ? this.pageSize : 1;
-        this.updateTodos$.next(this.TODOS_VIEW);
-      })
-    )
-  }
-
-  getPageData(): Observable<object> {
-    return of({
-      pageNumber: this.pageNumber,
-      pageLimit: this.pageLimit,
-      pageSize: this.pageSize,
-      totalCount: this.totalCount
+    const dataConfig$ = this.http.get(this.todosUrl);
+    dataConfig$.subscribe((data: any) => {
+      this.TODOS = data;
+      this.updateTodos();
     })
+
+    return dataConfig$;
   }
 
-  /**
-   * Set Category
-   * @param category : string [all|actvie|completed]
-   * @returns Not thing, just stop function.
-   */
-  setCategory(category: string): Observable<any> {
-    this.setCategoryStorage(category);
-    if (category === 'active') {
-      // this.updateTodos$.next(this.TODOS.filter(todo => !todo.completed));
-      return this.getTodosPageCompletedFilter(this.pageNumber, false); // page version
-    } else if (category === 'completed') {
-      // this.updateTodos$.next(this.TODOS.filter(todo => todo.completed));
-      return this.getTodosPageCompletedFilter(this.pageNumber, true); // page version
-    }
-    // All
-    // this.updateTodos$.next(this.TODOS);
-    return this.getTodosPage(this.pageNumber); // page version
+  getTodosPage(page: number = 1): Observable<any> {
+    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}`)
   }
 
-  // Control all todo elements
-
-  toggleTodosState(state: boolean): void {
-    this.TODOS.map(todo => {
-      if (state && !todo.completed) {
-        todo.completed = !todo.completed;
-        this.updateTodo(todo).subscribe();
-      } else if (!state && todo.completed) {
-        todo.completed = !todo.completed;
-        this.updateTodo(todo).subscribe();
-      }
-    })
+  getTodosCategory(completed: boolean = false): Observable<any> {
+    return this.http.get<any>(`${this.todosUrl}?completed=${completed}`)
   }
 
-  clearCompleted(): void {
-    this.TODOS.map(todo => {
-      if (todo.completed) {
-        console.log(todo);
-        this.removeTodo(todo.id).subscribe();
-      }
-    });
+  getTodosCategoryPage(page: number = 1, completed: boolean = false): Observable<any> {
+    return this.http.get<any>(`${this.todosUrl}?_page=${page}&_limit=${this.pageLimit}&completed=${completed}`)
   }
 
   getTodosLength(): Number {
     return this.TODOS.length;
   }
 
-  getTodosUncompletedLength(): Number {
-    return this.TODOS.filter(todo => !todo.completed).length;
+  setData(data: Todo[]): void {
+    console.log(this.TODOS_VIEW)
+    this.TODOS_VIEW = data;
+    this.totalCount = this.TODOS.length;
+    this.unCompletedCount = this.TODOS.filter(item => !item.completed).length;
+    this.updateTodos$.next(data);
   }
 
-  // Control todo element
+  setCategory(category: string): void {
+    this.category = category;
+    if (category !== 'all') {
+      this.getTodosCategory(category === 'completed').subscribe((data) => {
+        this.TODOS_CATEGORY = data;
+        this.updateTodosCategory$.next(data);
+        this.updateTodos$.next(data);
+      })
+    }
+    this.TODOS_CATEGORY = this.TODOS;
+    this.updateTodosCategory$.next(this.TODOS_CATEGORY);
+    this.updateTodos$.next(this.TODOS_CATEGORY);
+  }
+
+  setPage(page: number): void {
+    console.log('TODOS_CATEGORY?????', this.TODOS_CATEGORY, Math.ceil(this.TODOS_CATEGORY.length / this.pageLimit));
+    this.pageNumber = page;
+    this.pageSize = Math.ceil(this.TODOS_CATEGORY.length / this.pageLimit);
+    this.pageSize = this.pageSize === 0 ? 1 : this.pageSize;
+  }
+
+  updateTodos(page: number = this.pageNumber, category: string = this.category): void {
+    console.log('updateTodos', page, category);
+    this.pageNumber = page;
+    this.category = category;
+
+    if (category === 'all') {
+      this.getTodosPage(page).subscribe((data) => {
+        this.afterUpdateTodos(page, category, data);
+      });
+    } else {
+      this.getTodosCategoryPage(page, category === 'completed').subscribe((data) => {
+        this.afterUpdateTodos(page, category, data);
+      })
+    }
+  }
+
+  afterUpdateTodos(page: number, category: string, data: any): void {
+    this.setData(data);
+    this.setCategory(category);
+    this.setPage(page);
+  }
+
+  // Control all todo elements
+
+  toggleTodosState(state: boolean): void {
+    this.TODOS.map((todo) => {
+      todo.completed = state;
+      this.updateTodo(todo).subscribe();
+    });
+  }
+
+  clearCompleted(): void {
+    this.TODOS.map((todo) => {
+      todo.completed && this.removeTodo(todo.id).subscribe();
+    });
+  }
+
+  // Control single todo element
 
   addTodo(newTodoText: string): Observable<Todo> {
     return this.http.post<Todo>(this.todosUrl, new Todo(newTodoText), this.httpOptions).pipe(
-      tap(data => {
+      tap((data) => {
         this.TODOS.push(data);
-        this.getTodosPage(Math.ceil(this.TODOS.length / this.pageLimit)).subscribe();
+        this.updateTodos();
+        this.updateTodosCategory$.subscribe(() => {
+          if (this.pageNumber < this.pageSize) {
+            this.pageNumber = this.pageSize;
+            // this.updateTodos();
+          }
+        })
       })
-    )
+    );
   }
 
   removeTodo(id: number): Observable<any> {
@@ -164,10 +164,13 @@ export class TodoService {
         const todo = this._findId(id);
         if (!todo) return;
         this.TODOS.splice(this.TODOS.indexOf(todo), 1);
-
-        const lastPage: number = Math.ceil(this.TODOS.length / this.pageLimit);
-        const currentPage: number = lastPage > this.pageNumber ? this.pageNumber : lastPage;
-        this.getTodosPage(currentPage).subscribe();
+        this.updateTodos();
+        this.updateTodosCategory$.subscribe(() => {
+          if (this.pageNumber > this.pageSize) {
+            this.pageNumber = this.pageSize;
+            this.updateTodos();
+          }
+        })
       })
     );
   }
@@ -178,17 +181,9 @@ export class TodoService {
         const todo = this._findId(data.id);
         if (!todo) return;
         this.TODOS[this.TODOS.indexOf(todo)] = data;
-        this.getTodosPage(this.pageNumber).subscribe();
+        this.updateTodos();
       })
-    )
-  }
-
-  updateTodoState(): void {
-    this.updateTodos$.next(this.TODOS);
-  }
-
-  setCategoryStorage(category: string) {
-    localStorage.setItem(this.storageCategoryKey, category);
+    );
   }
 
   private _findId(id: number): Todo | undefined {

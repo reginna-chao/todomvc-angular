@@ -13,6 +13,7 @@ import { TodoSelectAllComponent } from './todo-select-all/todo-select-all.compon
 import { TodoPaginationComponent } from './todo-pagination/todo-pagination.component';
 import { LoaderComponent } from './loader/loader.component';
 import { AppRoutingModule } from './app-routing.module';
+import { TodosComponent } from './todos/todos.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { AppRoutingModule } from './app-routing.module';
     TodoSelectAllComponent,
     TodoPaginationComponent,
     LoaderComponent,
+    TodosComponent,
   ],
   imports: [
     BrowserModule,

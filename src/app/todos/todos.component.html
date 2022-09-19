@@ -1,0 +1,22 @@
+<section class="todoapp">
+  <header class="header">
+    <app-title></app-title>
+    <app-todo-input></app-todo-input>
+  </header>
+  <section *ngIf="count" class="main">
+    <app-todo-select-all></app-todo-select-all>
+    <app-todo-list [todos]="todos"></app-todo-list>
+    <app-todo-pagination
+      [pageNumber]="pageNumber"
+      [pageSize]="pageSize"
+      [category]="category"
+      (onChangePage)="onChangePage($event)"
+    ></app-todo-pagination>
+    <app-todo-footer
+      [category]="category"
+      [count]="unCompletedCount"
+      (onChangeCategory)="onChangeCategory($event)"
+      (onClearCompleted)="onClearCompleted()"
+    ></app-todo-footer>
+  </section>
+</section>

@@ -1,40 +1,25 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { TodoService } from '../services/todo.service';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-todo-footer',
   templateUrl: './todo-footer.component.html',
   styleUrls: ['./todo-footer.component.scss']
 })
-export class TodoFooterComponent implements OnInit, OnDestroy {
-  category: string = 'all';
-  count: Number = 0;
+export class TodoFooterComponent implements OnInit {
+  @Input() category: string = 'all';
+  @Input() count: Number = 0;
+  @Output() onChangeCategory: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onClearCompleted: EventEmitter<string> = new EventEmitter<any>();
 
-  constructor(private todoService: TodoService) { }
+  constructor() { }
 
-  ngOnInit(): void {
-    this.todoService.updateTodos$.subscribe(() => {
-      // Update count
-      this.count = this.todoService.getTodosUncompletedLength();
-    });
-
-    this.todoService.category$.subscribe(newCategory => {
-      this.category = newCategory;
-    })
-  }
-
-  ngOnDestroy(): void {
-    this.todoService.updateTodos$.unsubscribe();
-    this.todoService.category$.unsubscribe();
-  }
+  ngOnInit(): void { }
 
   setCategory(category: string): void {
-    this.category = category;
-    this.todoService.setCategory(category).subscribe();
+    this.onChangeCategory.emit(category);
   }
 
   clearCompleted(): void {
-    this.todoService.clearCompleted();
+    this.onClearCompleted.emit();
   }
 }

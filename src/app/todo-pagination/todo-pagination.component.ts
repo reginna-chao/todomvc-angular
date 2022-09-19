@@ -1,50 +1,38 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { TodoService } from '../services/todo.service';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-todo-pagination',
   templateUrl: './todo-pagination.component.html',
   styleUrls: ['./todo-pagination.component.scss']
 })
-export class TodoPaginationComponent implements OnInit, OnDestroy {
-  pageNumber: number = 1;
-  pageSize: number = 1;
-  hasPage: boolean = this.pageSize > 1;
+export class TodoPaginationComponent implements OnInit {
+  // Ref: https://michalmuszynski.com/blog/pagination-component-in-angular/
+  @Input() pageNumber: number = 1; // 目前頁面
+  @Input() pageSize: number = 1; // 總頁面數
+  @Input() category: string = ''; // 分類
+  @Output() onChangePage: EventEmitter<number> = new EventEmitter<number>();
 
-  constructor(private todoService: TodoService) { }
+  private _currentPage: number = 1;
 
-  ngOnInit(): void {
-    this.todoService.updateTodos$.subscribe(() => {
-      this.getPageData();
-    })
+  get currentPage(): number {
+    return this._currentPage;
   }
 
-  ngOnDestroy(): void {
-    this.todoService.updateTodos$.unsubscribe();
+  set currentPage(page: number) {
+    this._currentPage = page;
+    this.onChangePage.emit(this.currentPage);
   }
 
-  getPageData(): void {
-    this.todoService.getPageData()
-      .subscribe((data: any) => {
-        this.pageNumber = data.pageNumber;
-        this.pageSize = data.pageSize;
-        this.hasPage = this.pageSize > 1;
-      })
-  }
+  constructor() { }
 
-  changePage(newPageNumber: number): void {
-    this.todoService.getTodosPage(newPageNumber).subscribe(resp => {
-      this.pageNumber = newPageNumber;
-    });
-  }
+  ngOnInit(): void { }
 
   prevPage(): void {
-    this.changePage(this.pageNumber - 1);
+    this.currentPage -= 1;
   }
 
   nextPage(): void {
-    this.changePage(this.pageNumber + 1);
+    this.currentPage += 1;
   }
 
 }

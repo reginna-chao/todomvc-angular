@@ -14,7 +14,7 @@ export class TodoSelectAllComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.todoService.updateTodos$.subscribe(() => {
-      this.completedAll = this.todoService.getTodosUncompletedLength() === 0;
+      this.completedAll = this.todoService.unCompletedCount === 0;
     })
   }
 
