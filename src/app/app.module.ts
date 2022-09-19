@@ -12,6 +12,7 @@ import { TitleComponent } from './title/title.component';
 import { TodoSelectAllComponent } from './todo-select-all/todo-select-all.component';
 import { TodoPaginationComponent } from './todo-pagination/todo-pagination.component';
 import { LoaderComponent } from './loader/loader.component';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { LoaderComponent } from './loader/loader.component';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

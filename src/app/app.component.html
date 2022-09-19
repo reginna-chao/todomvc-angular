@@ -6,11 +6,13 @@
   </header>
   <section *ngIf="count" class="main">
     <app-todo-select-all></app-todo-select-all>
-    <app-todo-list></app-todo-list>
+    <!-- <app-todo-list></app-todo-list> -->
+    <router-outlet></router-outlet>
     <app-todo-pagination></app-todo-pagination>
     <app-todo-footer></app-todo-footer>
   </section>
 </section>
+
 <footer class="info">
   <p>Double-click to edit a todo</p>
   <p>Created by <a href="https://github.com/reginna-chao/todomvc-angular">Reginna Chao</a></p>
