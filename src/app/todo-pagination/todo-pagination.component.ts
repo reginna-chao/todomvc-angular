@@ -12,27 +12,16 @@ export class TodoPaginationComponent implements OnInit {
   @Input() category: string = ''; // 分類
   @Output() onChangePage: EventEmitter<number> = new EventEmitter<number>();
 
-  private _currentPage: number = 1;
-
-  get currentPage(): number {
-    return this._currentPage;
-  }
-
-  set currentPage(page: number) {
-    this._currentPage = page;
-    this.onChangePage.emit(this.currentPage);
-  }
-
   constructor() { }
 
   ngOnInit(): void { }
 
   prevPage(): void {
-    this.currentPage -= 1;
+    this.onChangePage.emit(this.pageNumber - 1);
   }
 
   nextPage(): void {
-    this.currentPage += 1;
+    this.onChangePage.emit(this.pageNumber + 1);
   }
 
 }

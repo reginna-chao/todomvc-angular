@@ -1,6 +1,6 @@
 <section class="todoapp">
   <header class="header">
-    <app-title></app-title>
+    <h1>{{title}}</h1>
     <app-todo-input></app-todo-input>
   </header>
   <section *ngIf="count" class="main">
@@ -14,7 +14,7 @@
     ></app-todo-pagination>
     <app-todo-footer
       [category]="category"
-      [count]="unCompletedCount"
+      [count]="uncompletedCount"
       (onChangeCategory)="onChangeCategory($event)"
       (onClearCompleted)="onClearCompleted()"
     ></app-todo-footer>

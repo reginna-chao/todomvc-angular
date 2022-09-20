@@ -42,9 +42,7 @@ export class TodoItemComponent implements OnInit {
     this.todoService.removeTodo(this.todo.id).subscribe();
   }
 
-  // Update todo completed state for update count.
   updateTodo(todo: Todo): void {
-    console.log(todo)
     this.todoService.updateTodo(todo).subscribe();
   }
 

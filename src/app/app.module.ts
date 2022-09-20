@@ -8,7 +8,6 @@ import { TodoFooterComponent } from './todo-footer/todo-footer.component';
 import { TodoInputComponent } from './todo-input/todo-input.component';
 import { TodoItemComponent } from './todo-item/todo-item.component';
 import { TodoListComponent } from './todo-list/todo-list.component';
-import { TitleComponent } from './title/title.component';
 import { TodoSelectAllComponent } from './todo-select-all/todo-select-all.component';
 import { TodoPaginationComponent } from './todo-pagination/todo-pagination.component';
 import { LoaderComponent } from './loader/loader.component';
@@ -22,7 +21,6 @@ import { TodosComponent } from './todos/todos.component';
     TodoInputComponent,
     TodoItemComponent,
     TodoListComponent,
-    TitleComponent,
     TodoSelectAllComponent,
     TodoPaginationComponent,
     LoaderComponent,
