@@ -23,8 +23,7 @@ export class TodoItemComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    if (!this.editTodo) return;
-    this.editTodo.changes.subscribe(() => {
+    this.editTodo?.changes.subscribe(() => {
       this.setFocus();
     });
   }
@@ -36,10 +35,7 @@ export class TodoItemComponent implements OnInit {
   }
 
   removeTodo(): void {
-    // Solve: Object is possibly 'undefined'.ts(2532)
-    if (!this.todo) return;
-
-    this.todoService.removeTodo(this.todo.id).subscribe();
+    this.todoService.removeTodo(this.todo?.id).subscribe();
   }
 
   updateTodo(todo: Todo): void {
@@ -66,11 +62,7 @@ export class TodoItemComponent implements OnInit {
 
   cancelEdit(editTodoEl: any): void {
     this.editing = false;
-
-    // Solve: Object is possibly 'undefined'.ts(2532)
-    if (!this.todo) return;
-
-    editTodoEl.value = this.todo.text;
+    editTodoEl.value = this.todo?.text;
   }
 
 }
